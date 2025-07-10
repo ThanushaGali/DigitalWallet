@@ -83,7 +83,7 @@ export function DigitalWallet({ receipts }: DigitalWalletProps) {
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="relative h-40 w-full rounded-md overflow-hidden mb-4">
-                     <Image src={receipt.image} data-ai-hint="receipt photo" alt={`Receipt from ${receipt.vendor}`} layout="fill" objectFit="cover" className="opacity-50" />
+                     <Image src={receipt.image} data-ai-hint="store receipt" alt={`Receipt from ${receipt.vendor}`} layout="fill" objectFit="cover" className="opacity-50" />
                      <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
                   </div>
                 </CardContent>
@@ -92,7 +92,7 @@ export function DigitalWallet({ receipts }: DigitalWalletProps) {
                     {receipt.category}
                   </Badge>
                   <div className="text-2xl font-bold text-foreground">
-                    ${receipt.totalAmount.toFixed(2)}
+                    ₹{receipt.totalAmount.toFixed(2)}
                   </div>
                 </CardFooter>
               </Card>

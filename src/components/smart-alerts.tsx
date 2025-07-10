@@ -6,14 +6,14 @@ export function SmartAlerts() {
       {
         id: 1,
         title: "Budget Alert: Dining Out",
-        description: "You've spent $150 of your $200 dining budget this month. Only $50 left!",
+        description: "You've spent ₹12,500 of your ₹16,500 dining budget this month. Only ₹4,000 left!",
         variant: "destructive",
         icon: <AlertTriangle className="h-4 w-4" />,
       },
       {
         id: 2,
         title: "Subscription Renewal: Music+",
-        description: "Your Music+ subscription for $9.99 is scheduled to renew in 3 days.",
+        description: "Your Music+ subscription for ₹820 is scheduled to renew in 3 days.",
         variant: "default",
         icon: <Bell className="h-4 w-4" />,
       },

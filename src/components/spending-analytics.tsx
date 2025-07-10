@@ -73,7 +73,12 @@ export function SpendingAnalytics({ receipts }: SpendingAnalyticsProps) {
               <PieChart>
                 <Tooltip
                   cursor={false}
-                  content={<ChartTooltipContent hideLabel indicator="dot" />}
+                  content={<ChartTooltipContent hideLabel indicator="dot" formatter={(value, name, props) => (
+                    <div className="flex flex-col gap-0.5">
+                      <div className="font-medium">{props.payload.name}</div>
+                      <div className="text-muted-foreground">₹{Number(value).toFixed(2)}</div>
+                    </div>
+                  )} />}
                 />
                 <Pie
                   data={chartData}
@@ -96,7 +101,7 @@ export function SpendingAnalytics({ receipts }: SpendingAnalyticsProps) {
           <div className="space-y-4">
             <div className="text-center md:text-left">
                 <p className="text-sm text-muted-foreground">Total Spent</p>
-                <p className="text-5xl font-bold text-primary">${totalSpent.toFixed(2)}</p>
+                <p className="text-5xl font-bold text-primary">₹{totalSpent.toFixed(2)}</p>
             </div>
             <div className="space-y-2">
                 <h4 className="font-medium">Top Categories</h4>
@@ -107,7 +112,7 @@ export function SpendingAnalytics({ receipts }: SpendingAnalyticsProps) {
                                 <span className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.fill }} />
                                 <span className="text-sm font-medium">{entry.name}</span>
                             </div>
-                            <span className="font-mono font-semibold">${entry.value.toFixed(2)}</span>
+                            <span className="font-mono font-semibold">₹{entry.value.toFixed(2)}</span>
                         </li>
                     ))}
                 </ul>

@@ -35,7 +35,7 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
       vendor,
       date,
       totalAmount,
-      items: itemizedList.map(i => `${i.item}: $${i.price.toFixed(2)}`).join(', '),
+      items: itemizedList.map(i => `${i.item}: ₹${i.price.toFixed(2)}`).join(', '),
   };
 
   return (
@@ -61,7 +61,7 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
           <div className="flex items-baseline justify-between rounded-lg bg-muted/50 p-4">
               <div>
                   <p className="text-sm text-muted-foreground">Total Amount</p>
-                  <p className="text-4xl font-bold text-primary">${totalAmount.toFixed(2)}</p>
+                  <p className="text-4xl font-bold text-primary">₹{totalAmount.toFixed(2)}</p>
               </div>
               <Badge className="text-base" variant="secondary">{category}</Badge>
           </div>
@@ -73,7 +73,7 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
                 {itemizedList.map((item, index) => (
                   <div key={index} className="flex justify-between items-center text-sm">
                     <span>{item.item}</span>
-                    <span className="font-mono">${item.price.toFixed(2)}</span>
+                    <span className="font-mono">₹{item.price.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -90,7 +90,7 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
 
         <div className="md:col-span-1 space-y-6">
           <div className="relative w-full h-48 rounded-lg overflow-hidden border">
-            <Image src={image} data-ai-hint="receipt photo" alt={`Receipt from ${vendor}`} layout="fill" objectFit="contain" />
+            <Image src={image} data-ai-hint="store receipt" alt={`Receipt from ${vendor}`} layout="fill" objectFit="contain" />
           </div>
           <div>
               <h3 className="font-semibold text-lg mb-3 flex items-center gap-2"><QrCode className="h-5 w-5 text-primary" /> Digital Pass</h3>
