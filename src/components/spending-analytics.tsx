@@ -5,6 +5,7 @@ import { Pie, PieChart, Cell, Tooltip } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import type { Receipt } from '@/types';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface SpendingAnalyticsProps {
   receipts: Receipt[];
@@ -19,12 +20,21 @@ const COLORS = [
 ];
 
 export function SpendingAnalytics({ receipts }: SpendingAnalyticsProps) {
-  const { chartData, chartConfig, totalSpent } = React.useMemo(() => {
+  const { chartData, chartConfig, totalSpent, vendorData } = React.useMemo(() => {
     const categoryTotals = receipts.reduce((acc, receipt) => {
       const category = receipt.category || 'Other';
       acc[category] = (acc[category] || 0) + receipt.totalAmount;
       return acc;
     }, {} as { [key: string]: number });
+    
+    const vendorStats = receipts.reduce((acc, receipt) => {
+      if (!acc[receipt.vendor]) {
+        acc[receipt.vendor] = { count: 0, total: 0 };
+      }
+      acc[receipt.vendor].count += 1;
+      acc[receipt.vendor].total += receipt.totalAmount;
+      return acc;
+    }, {} as { [key: string]: { count: number; total: number } });
 
     const totalSpent = receipts.reduce((sum, r) => sum + r.totalAmount, 0);
 
@@ -43,7 +53,14 @@ export function SpendingAnalytics({ receipts }: SpendingAnalyticsProps) {
       })
       .sort((a, b) => b.value - a.value);
 
-    return { chartData, chartConfig, totalSpent };
+    const vendorData = Object.entries(vendorStats)
+        .map(([vendor, stats]) => ({
+            vendor,
+            ...stats,
+        }))
+        .sort((a, b) => b.total - a.total);
+
+    return { chartData, chartConfig, totalSpent, vendorData };
   }, [receipts]);
   
   if (receipts.length === 0) {
@@ -64,10 +81,10 @@ export function SpendingAnalytics({ receipts }: SpendingAnalyticsProps) {
     <Card>
       <CardHeader>
         <CardTitle>Spending Analytics</CardTitle>
-        <CardDescription>Here's a breakdown of your spending by category for the current period.</CardDescription>
+        <CardDescription>Here's a breakdown of your spending by category and vendor for the current period.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div className="grid md:grid-cols-2 gap-8 items-start">
           <div>
             <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[300px]">
               <PieChart>
@@ -98,24 +115,46 @@ export function SpendingAnalytics({ receipts }: SpendingAnalyticsProps) {
               </PieChart>
             </ChartContainer>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-8">
             <div className="text-center md:text-left">
                 <p className="text-sm text-muted-foreground">Total Spent</p>
                 <p className="text-5xl font-bold text-primary">₹{totalSpent.toFixed(2)}</p>
             </div>
-            <div className="space-y-2">
-                <h4 className="font-medium">Top Categories</h4>
-                <ul className="space-y-2">
-                    {chartData.map((entry) => (
-                        <li key={entry.name} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-                            <div className="flex items-center gap-2">
-                                <span className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.fill }} />
-                                <span className="text-sm font-medium">{entry.name}</span>
-                            </div>
-                            <span className="font-mono font-semibold">₹{entry.value.toFixed(2)}</span>
-                        </li>
-                    ))}
-                </ul>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                    <h4 className="font-medium">Top Categories</h4>
+                    <ScrollArea className="h-48">
+                        <ul className="space-y-2 pr-4">
+                            {chartData.map((entry) => (
+                                <li key={entry.name} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.fill }} />
+                                        <span className="text-sm font-medium">{entry.name}</span>
+                                    </div>
+                                    <span className="font-mono font-semibold">₹{entry.value.toFixed(2)}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </ScrollArea>
+                </div>
+
+                <div className="space-y-2">
+                    <h4 className="font-medium">Vendor Breakdown</h4>
+                     <ScrollArea className="h-48">
+                        <ul className="space-y-2 pr-4">
+                            {vendorData.map((vendor) => (
+                                <li key={vendor.vendor} className="p-2 rounded-md bg-muted/50">
+                                    <div className="flex items-center justify-between">
+                                       <span className="text-sm font-medium">{vendor.vendor}</span>
+                                       <span className="font-mono font-semibold">₹{vendor.total.toFixed(2)}</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{vendor.count} {vendor.count > 1 ? 'purchases' : 'purchase'}</p>
+                                </li>
+                            ))}
+                        </ul>
+                    </ScrollArea>
+                </div>
             </div>
           </div>
         </div>
