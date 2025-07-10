@@ -3,7 +3,6 @@
 import { extractReceiptData } from '@/ai/flows/extract-receipt-data';
 import { categorizeSpending } from '@/ai/flows/categorize-spending';
 import { detectFraudulentReceipt } from '@/ai/flows/detect-fraudulent-receipt';
-import { queryReceipts } from '@/ai/flows/query-receipts-flow';
 import { parseTextReceipt } from '@/ai/flows/parse-text-receipt';
 import type { Receipt } from '@/types';
 
@@ -52,18 +51,4 @@ export async function processTextReceipt(textContent: string): Promise<Omit<Rece
         console.error("Error processing text receipt:", error);
         throw new Error("Failed to parse text. The AI model might be unable to read the data.");
     }
-}
-
-
-export async function askAI(query: string, receipts: Receipt[]): Promise<string> {
-  try {
-    const result = await queryReceipts({
-      query,
-      receipts: JSON.stringify(receipts),
-    });
-    return result.answer;
-  } catch (error) {
-    console.error("Error asking AI:", error);
-    throw new Error("The AI assistant is currently unavailable. Please try again later.");
-  }
 }

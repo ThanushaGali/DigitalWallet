@@ -1,19 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { BarChart, Bell, ChevronDown, MessageSquare, PlusCircle, Target, Users, Wallet, FileInput } from 'lucide-react';
+import { Bell, ChevronDown, PlusCircle, Users, Wallet, FileInput } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DigitalWallet } from '@/components/digital-wallet';
-import { SpendingAnalytics } from '@/components/spending-analytics';
 import { SmartAlerts } from '@/components/smart-alerts';
 import { ReceiptUpload } from '@/components/receipt-upload';
 import type { Receipt } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { AskAI } from '@/components/ask-ai';
-import { ExpenseBudgets } from '@/components/expense-budgets';
 import { ImportReceipt } from '@/components/import-receipt';
 
 const mockReceipts: Receipt[] = [
@@ -112,6 +109,7 @@ type WalletType = 'Personal' | 'Family';
 export function Dashboard() {
   const [receipts, setReceipts] = React.useState<Receipt[]>(mockReceipts);
   const [isUploadOpen, setUploadOpen] = React.useState(false);
+  const [isImportOpen, setImportOpen] = React.useState(false);
   const [activeWallet, setActiveWallet] = React.useState<WalletType>('Family');
   const { toast } = useToast();
 
@@ -162,7 +160,11 @@ export function Dashboard() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+           <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <FileInput className="mr-2 h-5 w-5" />
+            Import Text
+          </Button>
           <Button onClick={() => setUploadOpen(true)}>
             <PlusCircle className="mr-2 h-5 w-5" />
             Add Receipt
@@ -172,32 +174,16 @@ export function Dashboard() {
 
       <main className="flex-1 p-4 md:p-8">
         <Tabs defaultValue="wallet" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex md:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex">
             <TabsTrigger value="wallet"><Wallet className="mr-2 h-4 w-4" /> Digital Wallet</TabsTrigger>
-            <TabsTrigger value="analytics"><BarChart className="mr-2 h-4 w-4" /> Analytics</TabsTrigger>
-            <TabsTrigger value="budgets"><Target className="mr-2 h-4 w-4" /> Budgets</TabsTrigger>
-            <TabsTrigger value="alerts"><Bell className="mr-2 h-4 w-4" /> Smart Alerts</TabsTrigger>
-            <TabsTrigger value="ask-ai"><MessageSquare className="mr-2 h-4 w-4" /> Ask AI</TabsTrigger>
-            <TabsTrigger value="import"><FileInput className="mr-2 h-4 w-4" /> Import</TabsTrigger>
+            <TabsTrigger value="alerts"><Bell className="mr-2 h-4 w-4" /> Smart Reminders</TabsTrigger>
           </TabsList>
 
           <TabsContent value="wallet" className="mt-6">
             <DigitalWallet receipts={filteredReceipts} />
           </TabsContent>
-          <TabsContent value="analytics" className="mt-6">
-            <SpendingAnalytics receipts={filteredReceipts} />
-          </TabsContent>
-          <TabsContent value="budgets" className="mt-6">
-            <ExpenseBudgets receipts={filteredReceipts} />
-          </TabsContent>
           <TabsContent value="alerts" className="mt-6">
             <SmartAlerts receipts={filteredReceipts} />
-          </TabsContent>
-          <TabsContent value="ask-ai" className="mt-6">
-            <AskAI receipts={filteredReceipts} />
-          </TabsContent>
-           <TabsContent value="import" className="mt-6">
-            <ImportReceipt onReceiptAdd={handleAddReceipt}/>
           </TabsContent>
         </Tabs>
       </main>
@@ -205,6 +191,12 @@ export function Dashboard() {
       <ReceiptUpload 
         isOpen={isUploadOpen}
         setIsOpen={setUploadOpen}
+        onReceiptAdd={handleAddReceipt}
+      />
+      
+      <ImportReceipt
+        isOpen={isImportOpen}
+        setIsOpen={setImportOpen}
         onReceiptAdd={handleAddReceipt}
       />
     </div>

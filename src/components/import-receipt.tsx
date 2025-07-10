@@ -5,10 +5,17 @@ import * as React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Bot, FileInput, Loader2, Send } from 'lucide-react';
+import { Bot, FileInput, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { processTextReceipt } from '@/app/actions';
 import type { Receipt } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -20,14 +27,17 @@ const ImportSchema = z.object({
 type ImportFormValues = z.infer<typeof ImportSchema>;
 
 interface ImportReceiptProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
   onReceiptAdd: (receipt: Omit<Receipt, 'id' | 'image'>) => void;
 }
 
-export function ImportReceipt({ onReceiptAdd }: ImportReceiptProps) {
+export function ImportReceipt({ isOpen, setIsOpen, onReceiptAdd }: ImportReceiptProps) {
   const [isProcessing, setIsProcessing] = React.useState(false);
   const { toast } = useToast();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ImportFormValues>({
+  const { register, handleSubmit, reset, watch, formState: { errors, isValid } } = useForm<ImportFormValues>({
     resolver: zodResolver(ImportSchema),
+    mode: 'onChange',
   });
 
   const onSubmit: SubmitHandler<ImportFormValues> = async (data) => {
@@ -39,7 +49,7 @@ export function ImportReceipt({ onReceiptAdd }: ImportReceiptProps) {
           title: "Import Successful!",
           description: `Receipt from ${result.vendor} has been processed and added.`,
       });
-      reset();
+      handleClose();
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -51,19 +61,28 @@ export function ImportReceipt({ onReceiptAdd }: ImportReceiptProps) {
     }
   };
 
+  const handleClose = () => {
+    reset();
+    setIsOpen(false);
+  }
+
   return (
-    <Card className="max-w-3xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-            <FileInput />
-            Import from Text
-        </CardTitle>
-        <CardDescription>
-            Paste the content of an SMS or email receipt below. Our AI will parse it and add it to your wallet.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+     <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-[480px]" onInteractOutside={(e) => {
+        if (isProcessing) {
+          e.preventDefault();
+        }
+      }}>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+              <FileInput />
+              Import from Text
+          </DialogTitle>
+          <DialogDescription>
+              Paste the content of an SMS or email receipt below. Our AI will parse it and add it to your wallet.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-4">
           <Textarea
             {...register('textContent')}
             placeholder="e.g., Thanks for your order from The Daily Grind Cafe! Total: ₹105.00 on July 19..."
@@ -71,8 +90,11 @@ export function ImportReceipt({ onReceiptAdd }: ImportReceiptProps) {
             disabled={isProcessing}
           />
           {errors.textContent && <p className="text-sm text-destructive">{errors.textContent.message}</p>}
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isProcessing}>
+           <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleClose} disabled={isProcessing}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isProcessing || !isValid}>
                 {isProcessing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -85,9 +107,9 @@ export function ImportReceipt({ onReceiptAdd }: ImportReceiptProps) {
                 </>
               )}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

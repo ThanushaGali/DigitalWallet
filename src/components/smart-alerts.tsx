@@ -1,6 +1,6 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Bot, Coins, Lightbulb } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { AlertTriangle, Bot, Coins, Lightbulb, Bell, CalendarCheck2 } from "lucide-react";
 import type { Receipt } from "@/types";
 import * as React from 'react';
 
@@ -9,7 +9,8 @@ interface SmartAlertsProps {
 }
 
 const HIGH_SPEND_THRESHOLD = 2000;
-const FREQUENT_VENDOR_THRESHOLD = 2;
+const FREQUENT_VENDOR_THRESHOLD = 3; // Increased threshold
+const RETURN_WINDOW_DAYS = 30;
 
 type AlertType = {
     id: string;
@@ -22,6 +23,7 @@ type AlertType = {
 export function SmartAlerts({ receipts }: SmartAlertsProps) {
     const alerts = React.useMemo(() => {
         const generatedAlerts: AlertType[] = [];
+        const today = new Date();
 
         // 1. Fraudulent Receipt Alert
         const fraudulentReceipts = receipts.filter(r => r.isFraudulent);
@@ -34,19 +36,26 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
                 color: 'text-destructive',
             });
         }
+        
+        // 2. Return Window Reminder for High-Value Items
+        const highValueItems = receipts.filter(r => r.totalAmount > HIGH_SPEND_THRESHOLD && !r.isFraudulent);
+        highValueItems.forEach(receipt => {
+            const receiptDate = new Date(receipt.date);
+            const diffTime = today.getTime() - receiptDate.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const remainingDays = RETURN_WINDOW_DAYS - diffDays;
 
-        // 2. High Spending Alert
-        const highSpendReceipts = receipts.filter(r => r.totalAmount > HIGH_SPEND_THRESHOLD);
-        if (highSpendReceipts.length > 0) {
-            const largestPurchase = highSpendReceipts.sort((a,b) => b.totalAmount - a.totalAmount)[0];
-            generatedAlerts.push({
-                id: 'high-spend-alert',
-                title: "Large Purchase Detected",
-                description: `You made a significant purchase of ₹${largestPurchase.totalAmount.toFixed(2)} at ${largestPurchase.vendor}.`,
-                icon: <Coins className="h-6 w-6" />,
-                color: 'text-amber-500',
-            });
-        }
+            if (remainingDays > 0 && remainingDays <= 7) {
+                 generatedAlerts.push({
+                    id: `return-${receipt.id}`,
+                    title: `Return Window Closing!`,
+                    description: `Only ${remainingDays} days left to return your ₹${receipt.totalAmount.toFixed(2)} purchase from ${receipt.vendor}.`,
+                    icon: <CalendarCheck2 className="h-6 w-6" />,
+                    color: 'text-amber-500',
+                });
+            }
+        });
+
 
         // 3. Frequent Vendor Alert
         const vendorCounts = receipts.reduce((acc, r) => {
@@ -59,56 +68,52 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
              const mostFrequent = frequentVendors.sort((a,b) => b[1] - a[1])[0];
             generatedAlerts.push({
                 id: 'frequent-vendor-alert',
-                title: "You're a Regular!",
-                description: `You've shopped at ${mostFrequent[0]} ${mostFrequent[1]} times recently. Keep an eye out for loyalty rewards!`,
+                title: "Subscription or Habit?",
+                description: `You've shopped at ${mostFrequent[0]} ${mostFrequent[1]} times recently. Is this a recurring expense you can track?`,
                 icon: <Bot className="h-6 w-6" />,
                 color: 'text-primary',
             });
         }
         
-        // Add a default suggestion if no other alerts
-        if (generatedAlerts.length === 0) {
-             generatedAlerts.push({
-                id: 'default-suggestion',
-                title: "AI Insight",
-                description: `Try asking our AI a question like, "What was my biggest expense this month?" to get smart insights.`,
-                icon: <Lightbulb className="h-6 w-6" />,
-                color: 'text-blue-500',
-            });
-        }
-
         return generatedAlerts;
     }, [receipts]);
 
   return (
-    <div className="max-w-4xl mx-auto">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {alerts.map((alert) => (
-                <Card key={alert.id} className="flex flex-col">
-                    <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+            <Bell />
+            Smart Reminders
+        </CardTitle>
+        <CardDescription>
+            AI-powered alerts for return windows, potential fraud, and spending habits.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {alerts.length > 0 ? (
+             <div className="grid gap-4 md:grid-cols-2">
+                {alerts.map((alert) => (
+                    <div key={alert.id} className="flex items-start gap-4 p-4 border rounded-lg bg-muted/30">
                         <div className={alert.color}>{alert.icon}</div>
-                        <CardTitle className="text-lg">{alert.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                        <p className="text-sm text-muted-foreground">
-                            {alert.description}
-                        </p>
-                    </CardContent>
-                </Card>
-            ))}
-             {/* Placeholder for future alerts */}
-            <Card className="flex flex-col border-dashed">
-                <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
-                     <div className="text-muted-foreground"><Lightbulb className="h-6 w-6" /></div>
-                     <CardTitle className="text-lg text-muted-foreground">Future Insights</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                    <p className="text-sm text-muted-foreground">
-                        More AI-powered alerts and suggestions will appear here as you add more receipts.
-                    </p>
-                </CardContent>
-            </Card>
-        </div>
-    </div>
+                        <div className="flex-1">
+                            <h4 className="font-semibold">{alert.title}</h4>
+                            <p className="text-sm text-muted-foreground">
+                                {alert.description}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        ) : (
+             <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center h-[300px]">
+                <Lightbulb className="h-12 w-12 mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-bold tracking-tight">All Clear!</h3>
+                <p className="text-muted-foreground mt-2">
+                    No urgent reminders right now. We'll let you know if anything needs your attention.
+                </p>
+            </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
