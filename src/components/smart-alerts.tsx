@@ -1,6 +1,7 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { AlertTriangle, Bot, Lightbulb, Bell, CalendarCheck2 } from "lucide-react";
+import { AlertTriangle, Lightbulb, Bell, CalendarCheck2, TrendingUp, Repeat } from "lucide-react";
 import type { Receipt } from "@/types";
 import * as React from 'react';
 
@@ -9,8 +10,9 @@ interface SmartAlertsProps {
 }
 
 const HIGH_SPEND_THRESHOLD = 2000;
-const FREQUENT_VENDOR_THRESHOLD = 3; // Increased threshold
+const FREQUENT_VENDOR_THRESHOLD = 3;
 const RETURN_WINDOW_DAYS = 30;
+const SPIKE_MULTIPLIER = 5; // A purchase is a "spike" if it's 5x the average
 
 type AlertType = {
     id: string;
@@ -22,6 +24,10 @@ type AlertType = {
 
 export function SmartAlerts({ receipts }: SmartAlertsProps) {
     const alerts = React.useMemo(() => {
+        if (!receipts || receipts.length === 0) {
+            return [];
+        }
+
         const generatedAlerts: AlertType[] = [];
         const today = new Date();
 
@@ -56,10 +62,11 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
             }
         });
 
-
-        // 3. Frequent Vendor Alert
+        // 3. Recurring Payments Detection
         const vendorCounts = receipts.reduce((acc, r) => {
-            acc[r.vendor] = (acc[r.vendor] || 0) + 1;
+            if (!r.isFraudulent) {
+              acc[r.vendor] = (acc[r.vendor] || 0) + 1;
+            }
             return acc;
         }, {} as Record<string, number>);
 
@@ -67,11 +74,26 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
         if (frequentVendors.length > 0) {
              const mostFrequent = frequentVendors.sort((a,b) => b[1] - a[1])[0];
             generatedAlerts.push({
-                id: 'frequent-vendor-alert',
-                title: "Subscription or Habit?",
-                description: `You've shopped at ${mostFrequent[0]} ${mostFrequent[1]} times recently. Is this a recurring expense you can track?`,
-                icon: <Bot className="h-6 w-6" />,
+                id: 'recurring-payment-alert',
+                title: "Recurring Payment Detected",
+                description: `You've shopped at ${mostFrequent[0]} ${mostFrequent[1]} times recently. This might be a subscription.`,
+                icon: <Repeat className="h-6 w-6" />,
                 color: 'text-primary',
+            });
+        }
+        
+        // 4. Budget Spikes / Overages
+        const totalSpent = receipts.reduce((sum, r) => sum + r.totalAmount, 0);
+        const averageSpent = totalSpent / receipts.length;
+        const spendingSpike = receipts.find(r => r.totalAmount > averageSpent * SPIKE_MULTIPLIER);
+        
+        if (spendingSpike) {
+            generatedAlerts.push({
+                id: `spike-${spendingSpike.id}`,
+                title: 'Spending Spike',
+                description: `Your purchase of ₹${spendingSpike.totalAmount.toFixed(2)} at ${spendingSpike.vendor} is significantly higher than your average spend of ₹${averageSpent.toFixed(2)}.`,
+                icon: <TrendingUp className="h-6 w-6" />,
+                color: 'text-indigo-500',
             });
         }
         
@@ -86,7 +108,7 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
             Smart Reminders
         </CardTitle>
         <CardDescription>
-            AI-powered alerts for return windows, potential fraud, and spending habits.
+            AI-powered alerts for fraud, returns, and spending trends.
         </CardDescription>
       </CardHeader>
       <CardContent>
