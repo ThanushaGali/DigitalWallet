@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { BarChart, Bell, Bot, MessageSquare, PlusCircle, Wallet } from 'lucide-react';
+import { BarChart, Bell, MessageSquare, PlusCircle, Wallet } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -58,13 +58,28 @@ const mockReceipts: Receipt[] = [
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
   },
+    {
+    id: '5',
+    image: getCategoryImage('Dining'),
+    vendor: 'The Daily Grind Cafe',
+    date: '2024-07-21',
+    totalAmount: 125,
+    itemizedList: [
+      { item: 'Espresso', price: 35 },
+      { item: 'Muffin', price: 40 },
+    ],
+    category: 'Dining',
+    confidence: 0.99,
+    isFraudulent: false,
+    fraudulentDetails: 'No fraudulent activity detected.',
+  },
   {
     id: '4',
     image: getCategoryImage('Shopping'),
     vendor: 'Duplicate Store',
     date: '2024-07-15',
-    totalAmount: 1250,
-    itemizedList: [{ item: 'Luxury Item', price: 1250 }],
+    totalAmount: 2500,
+    itemizedList: [{ item: 'Luxury Item', price: 2500 }],
     category: 'Shopping',
     confidence: 0.92,
     isFraudulent: true,
@@ -118,7 +133,7 @@ export function Dashboard() {
             <SpendingAnalytics receipts={receipts} />
           </TabsContent>
           <TabsContent value="alerts" className="mt-6">
-            <SmartAlerts />
+            <SmartAlerts receipts={receipts} />
           </TabsContent>
           <TabsContent value="ask-ai" className="mt-6">
             <AskAI receipts={receipts} />
