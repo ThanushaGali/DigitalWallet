@@ -13,6 +13,7 @@ import { QRCodeGenerator } from '@/components/qr-code-generator';
 import Image from 'next/image';
 import { AlertTriangle, Bot, Calendar, QrCode, ShoppingCart } from 'lucide-react';
 import { format } from 'date-fns';
+import { getCategoryImage } from '@/lib/utils';
 
 interface ReceiptDetailsProps {
   receipt: Receipt;
@@ -27,7 +28,6 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
     category,
     isFraudulent,
     fraudulentDetails,
-    image,
   } = receipt;
   
   const qrData = {
@@ -92,11 +92,10 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
         <div className="md:col-span-1 space-y-6">
           <div className="relative w-full h-48 rounded-lg overflow-hidden border">
             <Image 
-              src={image} 
+              src={getCategoryImage(category)} 
               alt={`Receipt from ${vendor}`} 
               layout="fill" 
               objectFit="cover" 
-              data-ai-hint={category.toLowerCase()}
             />
           </div>
           <div>

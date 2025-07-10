@@ -33,7 +33,7 @@ type UploadFormValues = z.infer<typeof UploadSchema>;
 interface ReceiptUploadProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  onReceiptAdd: (receipt: Omit<Receipt, 'id' | 'image'>) => void;
+  onReceiptAdd: (receipt: Omit<Receipt, 'id' | 'image' | 'wallet'>) => void;
 }
 
 export function ReceiptUpload({ isOpen, setIsOpen, onReceiptAdd }: ReceiptUploadProps) {

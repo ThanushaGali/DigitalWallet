@@ -84,11 +84,10 @@ export function DigitalWallet({ receipts }: DigitalWalletProps) {
                 <CardContent className="flex-grow p-0">
                    <div className="relative h-40 w-full">
                      <Image 
-                        src={receipt.image}
+                        src={getCategoryImage(receipt.category)}
                         alt={`Receipt from ${receipt.vendor}`}
                         layout="fill"
                         objectFit="cover" 
-                        data-ai-hint={receipt.category.toLowerCase()}
                       />
                      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
                   </div>

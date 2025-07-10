@@ -29,7 +29,7 @@ type ImportFormValues = z.infer<typeof ImportSchema>;
 interface ImportReceiptProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  onReceiptAdd: (receipt: Omit<Receipt, 'id' | 'image'>) => void;
+  onReceiptAdd: (receipt: Omit<Receipt, 'id' | 'image' | 'wallet'>) => void;
 }
 
 export function ImportReceipt({ isOpen, setIsOpen, onReceiptAdd }: ImportReceiptProps) {

@@ -1,11 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { Bell, ChevronDown, PlusCircle, Users, Wallet, FileInput } from 'lucide-react';
+import { Bell, FileInput, PlusCircle, Wallet } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DigitalWallet } from '@/components/digital-wallet';
 import { SmartAlerts } from '@/components/smart-alerts';
 import { ReceiptUpload } from '@/components/receipt-upload';
@@ -16,7 +15,7 @@ import { ImportReceipt } from '@/components/import-receipt';
 const mockReceipts: Receipt[] = [
   {
     id: '1',
-    image: 'https://placehold.co/600x400.png',
+    image: '/images/groceries.jpg',
     vendor: 'Fresh Mart',
     date: '2024-07-20',
     totalAmount: 620,
@@ -29,11 +28,10 @@ const mockReceipts: Receipt[] = [
     confidence: 0.95,
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
-    wallet: 'Family',
   },
   {
     id: '2',
-    image: 'https://placehold.co/600x400.png',
+    image: '/images/dining.jpg',
     vendor: 'The Daily Grind Cafe',
     date: '2024-07-19',
     totalAmount: 105,
@@ -45,11 +43,10 @@ const mockReceipts: Receipt[] = [
     confidence: 0.98,
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
-    wallet: 'Personal',
   },
   {
     id: '3',
-    image: 'https://placehold.co/600x400.png',
+    image: '/images/travel.jpg',
     vendor: 'City Gas',
     date: '2024-07-18',
     totalAmount: 375,
@@ -58,11 +55,10 @@ const mockReceipts: Receipt[] = [
     confidence: 0.89,
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
-    wallet: 'Family',
   },
     {
     id: '5',
-    image: 'https://placehold.co/600x400.png',
+    image: '/images/dining.jpg',
     vendor: 'The Daily Grind Cafe',
     date: '2024-07-21',
     totalAmount: 125,
@@ -74,11 +70,10 @@ const mockReceipts: Receipt[] = [
     confidence: 0.99,
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
-    wallet: 'Personal',
   },
   {
     id: '4',
-    image: 'https://placehold.co/600x400.png',
+    image: '/images/shopping.jpg',
     vendor: 'Duplicate Store',
     date: '2024-07-15',
     totalAmount: 2500,
@@ -87,11 +82,10 @@ const mockReceipts: Receipt[] = [
     confidence: 0.92,
     isFraudulent: true,
     fraudulentDetails: 'This receipt appears to be a duplicate of a transaction from July 14th. High-value single item is suspicious.',
-    wallet: 'Personal',
   },
   {
     id: '6',
-    image: 'https://placehold.co/600x400.png',
+    image: '/images/utilities.jpg',
     vendor: 'PowerLight Co.',
     date: '2024-07-15',
     totalAmount: 1500,
@@ -100,35 +94,29 @@ const mockReceipts: Receipt[] = [
     confidence: 0.99,
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
-    wallet: 'Family',
   },
 ];
-
-type WalletType = 'Personal' | 'Family';
 
 export function Dashboard() {
   const [receipts, setReceipts] = React.useState<Receipt[]>(mockReceipts);
   const [isUploadOpen, setUploadOpen] = React.useState(false);
   const [isImportOpen, setImportOpen] = React.useState(false);
-  const [activeWallet, setActiveWallet] = React.useState<WalletType>('Family');
   const { toast } = useToast();
 
-  const handleAddReceipt = (newReceiptData: Omit<Receipt, 'id' | 'image'>) => {
+  const handleAddReceipt = (newReceiptData: Omit<Receipt, 'id' | 'image' | 'wallet'>) => {
     const newReceipt: Receipt = {
       ...newReceiptData,
       id: new Date().toISOString(),
-      image: 'https://placehold.co/600x400.png', // Use placeholder for now
-      wallet: activeWallet, // Add to the currently active wallet
+      // The image will be set by the getCategoryImage utility
+      image: 'images/other.jpg',
     };
     
     setReceipts(prevReceipts => [newReceipt, ...prevReceipts]);
     toast({
       title: "Success!",
-      description: `Receipt from ${newReceipt.vendor} has been added to ${activeWallet} wallet.`,
+      description: `Receipt from ${newReceipt.vendor} has been added.`,
     });
   };
-
-  const filteredReceipts = receipts.filter(r => r.wallet === activeWallet);
   
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -140,26 +128,6 @@ export function Dashboard() {
           </h1>
         </div>
         
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-4">
-              {activeWallet === 'Personal' ? <Wallet className="mr-2 h-4 w-4" /> : <Users className="mr-2 h-4 w-4" />}
-              {activeWallet} Wallet
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onSelect={() => setActiveWallet('Personal')}>
-              <Wallet className="mr-2 h-4 w-4" />
-              <span>Personal</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setActiveWallet('Family')}>
-              <Users className="mr-2 h-4 w-4" />
-              <span>Family</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
         <div className="ml-auto flex items-center gap-2">
            <Button variant="outline" onClick={() => setImportOpen(true)}>
             <FileInput className="mr-2 h-5 w-5" />
@@ -180,10 +148,10 @@ export function Dashboard() {
           </TabsList>
 
           <TabsContent value="wallet" className="mt-6">
-            <DigitalWallet receipts={filteredReceipts} />
+            <DigitalWallet receipts={receipts} />
           </TabsContent>
           <TabsContent value="alerts" className="mt-6">
-            <SmartAlerts receipts={filteredReceipts} />
+            <SmartAlerts receipts={receipts} />
           </TabsContent>
         </Tabs>
       </main>

@@ -6,7 +6,7 @@ import { detectFraudulentReceipt } from '@/ai/flows/detect-fraudulent-receipt';
 import { parseTextReceipt } from '@/ai/flows/parse-text-receipt';
 import type { Receipt } from '@/types';
 
-export async function processReceipt(photoDataUri: string): Promise<Omit<Receipt, 'id' | 'image'>> {
+export async function processReceipt(photoDataUri: string): Promise<Omit<Receipt, 'id' | 'image' | 'wallet'>> {
   try {
     const extractedData = await extractReceiptData({ photoDataUri });
     const receiptString = JSON.stringify(extractedData);
@@ -30,7 +30,7 @@ export async function processReceipt(photoDataUri: string): Promise<Omit<Receipt
   }
 }
 
-export async function processTextReceipt(textContent: string): Promise<Omit<Receipt, 'id' | 'image'>> {
+export async function processTextReceipt(textContent: string): Promise<Omit<Receipt, 'id' | 'image' | 'wallet'>> {
     try {
         const extractedData = await parseTextReceipt({ textContent });
         const receiptString = JSON.stringify(extractedData);

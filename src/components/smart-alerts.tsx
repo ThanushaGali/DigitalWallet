@@ -1,6 +1,6 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { AlertTriangle, Bot, Coins, Lightbulb, Bell, CalendarCheck2 } from "lucide-react";
+import { AlertTriangle, Bot, Lightbulb, Bell, CalendarCheck2 } from "lucide-react";
 import type { Receipt } from "@/types";
 import * as React from 'react';
 
