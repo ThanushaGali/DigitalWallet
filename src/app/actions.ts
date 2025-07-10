@@ -5,6 +5,7 @@ import { categorizeSpending } from '@/ai/flows/categorize-spending';
 import { detectFraudulentReceipt } from '@/ai/flows/detect-fraudulent-receipt';
 import { parseTextReceipt } from '@/ai/flows/parse-text-receipt';
 import { queryReceipts } from '@/ai/flows/query-receipts-flow';
+import { generateFinancialTips, FinancialTip } from '@/ai/flows/generate-financial-tips';
 import type { Receipt } from '@/types';
 
 export async function processReceipt(photoDataUri: string): Promise<Omit<Receipt, 'id' | 'image'>> {
@@ -69,5 +70,19 @@ export async function processQuery(query: string, receipts: Receipt[]): Promise<
     } catch (error) {
         console.error("Error processing query:", error);
         throw new Error("I'm having trouble answering that question right now. Please try again later.");
+    }
+}
+
+export async function getFinancialTips(receipts: Receipt[]): Promise<FinancialTip[]> {
+    if (!receipts || receipts.length === 0) {
+        return [];
+    }
+    try {
+        const tips = await generateFinancialTips({ receipts });
+        return tips.recommendations;
+    } catch (error) {
+        console.error("Error getting financial tips:", error);
+        // In case of an error, return an empty array to avoid breaking the UI
+        return [];
     }
 }

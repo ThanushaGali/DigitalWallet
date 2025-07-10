@@ -1,9 +1,12 @@
 
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { AlertTriangle, Lightbulb, Bell, CalendarCheck2, TrendingUp, Repeat } from "lucide-react";
+import { AlertTriangle, Lightbulb, Bell, CalendarCheck2, TrendingUp, Repeat, Info, Gift, RotateCw } from "lucide-react";
 import type { Receipt } from "@/types";
 import * as React from 'react';
+import { getFinancialTips } from "@/app/actions";
+import type { FinancialTip } from "@/ai/flows/generate-financial-tips";
+import { Skeleton } from "./ui/skeleton";
 
 interface SmartAlertsProps {
     receipts: Receipt[];
@@ -22,8 +25,32 @@ type AlertType = {
     color: string;
 };
 
+const financialTipIcons: { [key: string]: React.ReactNode } = {
+    alternative: <Gift className="h-6 w-6" />,
+    reorder: <RotateCw className="h-6 w-6" />,
+    savings_tip: <Info className="h-6 w-6" />,
+};
+
 export function SmartAlerts({ receipts }: SmartAlertsProps) {
-    const alerts = React.useMemo(() => {
+    const [financialTips, setFinancialTips] = React.useState<FinancialTip[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchTips = async () => {
+            if (receipts.length > 0) {
+                setIsLoading(true);
+                const tips = await getFinancialTips(receipts);
+                setFinancialTips(tips);
+                setIsLoading(false);
+            } else {
+                setFinancialTips([]);
+                setIsLoading(false);
+            }
+        };
+        fetchTips();
+    }, [receipts]);
+    
+    const staticAlerts = React.useMemo(() => {
         if (!receipts || receipts.length === 0) {
             return [];
         }
@@ -99,22 +126,33 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
         
         return generatedAlerts;
     }, [receipts]);
+    
+    const allAlerts = [...staticAlerts];
+    const hasAlerts = allAlerts.length > 0 || financialTips.length > 0;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
             <Bell />
-            Smart Reminders
+            Smart Reminders & Tips
         </CardTitle>
         <CardDescription>
-            AI-powered alerts for fraud, returns, and spending trends.
+            AI-powered alerts, trends, and financial recommendations.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {alerts.length > 0 ? (
+        {!isLoading && !hasAlerts ? (
+             <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center h-[300px]">
+                <Lightbulb className="h-12 w-12 mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-bold tracking-tight">All Clear!</h3>
+                <p className="text-muted-foreground mt-2">
+                    No urgent reminders right now. Add more receipts for personalized tips.
+                </p>
+            </div>
+        ) : (
              <div className="grid gap-4 md:grid-cols-2">
-                {alerts.map((alert) => (
+                {allAlerts.map((alert) => (
                     <div key={alert.id} className="flex items-start gap-4 p-4 border rounded-lg bg-muted/30">
                         <div className={alert.color}>{alert.icon}</div>
                         <div className="flex-1">
@@ -125,14 +163,26 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
                         </div>
                     </div>
                 ))}
-            </div>
-        ) : (
-             <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center h-[300px]">
-                <Lightbulb className="h-12 w-12 mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-bold tracking-tight">All Clear!</h3>
-                <p className="text-muted-foreground mt-2">
-                    No urgent reminders right now. We'll let you know if anything needs your attention.
-                </p>
+                {isLoading && Array.from({ length: 2 }).map((_, index) => (
+                     <div key={`skel-${index}`} className="flex items-start gap-4 p-4 border rounded-lg bg-muted/30">
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-1/3" />
+                            <Skeleton className="h-4 w-4/5" />
+                        </div>
+                    </div>
+                ))}
+                {!isLoading && financialTips.map((tip, index) => (
+                    <div key={`tip-${index}`} className="flex items-start gap-4 p-4 border rounded-lg bg-muted/30">
+                        <div className="text-cyan-500">{financialTipIcons[tip.type] || <Info className="h-6 w-6"/>}</div>
+                        <div className="flex-1">
+                            <h4 className="font-semibold">{tip.title}</h4>
+                            <p className="text-sm text-muted-foreground">
+                                {tip.description}
+                            </p>
+                        </div>
+                    </div>
+                ))}
             </div>
         )}
       </CardContent>
