@@ -1,7 +1,7 @@
 
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { AlertTriangle, Lightbulb, Bell, CalendarCheck2, TrendingUp, Repeat, Info, Gift, RotateCw } from "lucide-react";
+import { AlertTriangle, Lightbulb, Bell, CalendarCheck2, TrendingUp, Repeat, Info, Gift, RotateCw, Wallet, Target } from "lucide-react";
 import type { Receipt } from "@/types";
 import * as React from 'react';
 import { getFinancialTips } from "@/app/actions";
@@ -16,6 +16,8 @@ const HIGH_SPEND_THRESHOLD = 2000;
 const FREQUENT_VENDOR_THRESHOLD = 3;
 const RETURN_WINDOW_DAYS = 30;
 const SPIKE_MULTIPLIER = 5; // A purchase is a "spike" if it's 5x the average
+const BUDGET_LIMIT_DINING = 5000;
+
 
 type AlertType = {
     id: string;
@@ -70,7 +72,7 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
             });
         }
         
-        // 2. Return Window Reminder for High-Value Items
+        // 2. Return Window Reminder
         const highValueItems = receipts.filter(r => r.totalAmount > HIGH_SPEND_THRESHOLD && !r.isFraudulent);
         highValueItems.forEach(receipt => {
             const receiptDate = new Date(receipt.date);
@@ -89,7 +91,7 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
             }
         });
 
-        // 3. Recurring Payments Detection
+        // 3. Subscription Renewal Reminder
         const vendorCounts = receipts.reduce((acc, r) => {
             if (!r.isFraudulent) {
               acc[r.vendor] = (acc[r.vendor] || 0) + 1;
@@ -101,9 +103,9 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
         if (frequentVendors.length > 0) {
              const mostFrequent = frequentVendors.sort((a,b) => b[1] - a[1])[0];
             generatedAlerts.push({
-                id: 'recurring-payment-alert',
-                title: "Recurring Payment Detected",
-                description: `You've shopped at ${mostFrequent[0]} ${mostFrequent[1]} times recently. This might be a subscription.`,
+                id: 'subscription-renewal-alert',
+                title: "Subscription Renewal?",
+                description: `You've shopped at ${mostFrequent[0]} ${mostFrequent[1]} times recently. Check if a subscription is due for renewal.`,
                 icon: <Repeat className="h-6 w-6" />,
                 color: 'text-primary',
             });
@@ -121,6 +123,29 @@ export function SmartAlerts({ receipts }: SmartAlertsProps) {
                 description: `Your purchase of ₹${spendingSpike.totalAmount.toFixed(2)} at ${spendingSpike.vendor} is significantly higher than your average spend of ₹${averageSpent.toFixed(2)}.`,
                 icon: <TrendingUp className="h-6 w-6" />,
                 color: 'text-indigo-500',
+            });
+        }
+        
+        // 5. Budget Alerts
+        const diningSpend = receipts.filter(r => r.category === 'Dining').reduce((sum, r) => sum + r.totalAmount, 0);
+        if (diningSpend > BUDGET_LIMIT_DINING * 0.8) {
+            generatedAlerts.push({
+                id: 'budget-alert-dining',
+                title: 'Budget Alert: Dining',
+                description: `You've spent ₹${diningSpend.toFixed(2)} on Dining this period, which is close to your budget of ₹${BUDGET_LIMIT_DINING.toFixed(2)}.`,
+                icon: <Target className="h-6 w-6" />,
+                color: 'text-orange-500',
+            });
+        }
+        
+        // 6. Cashback / Loyalty Points Reminder (Mock)
+        if (receipts.some(r => r.category === 'Shopping' || r.category === 'Groceries')) {
+            generatedAlerts.push({
+                id: 'loyalty-points-reminder',
+                title: "Remember Your Rewards!",
+                description: `Don't forget to use your credit card that offers cashback or loyalty points on shopping & grocery purchases.`,
+                icon: <Wallet className="h-6 w-6" />,
+                color: 'text-green-500',
             });
         }
         
