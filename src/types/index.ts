@@ -14,4 +14,5 @@ export interface Receipt {
   confidence: number;
   isFraudulent: boolean;
   fraudulentDetails: string;
+  wallet: 'Personal' | 'Family'; // New property for shared wallets
 }

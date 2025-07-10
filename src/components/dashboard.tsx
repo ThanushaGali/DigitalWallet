@@ -1,10 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { BarChart, Bell, MessageSquare, PlusCircle, Wallet } from 'lucide-react';
+import { BarChart, Bell, ChevronDown, MessageSquare, PlusCircle, Users, Wallet } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DigitalWallet } from '@/components/digital-wallet';
 import { SpendingAnalytics } from '@/components/spending-analytics';
 import { SmartAlerts } from '@/components/smart-alerts';
@@ -30,6 +31,7 @@ const mockReceipts: Receipt[] = [
     confidence: 0.95,
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
+    wallet: 'Family',
   },
   {
     id: '2',
@@ -45,6 +47,7 @@ const mockReceipts: Receipt[] = [
     confidence: 0.98,
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
+    wallet: 'Personal',
   },
   {
     id: '3',
@@ -57,6 +60,7 @@ const mockReceipts: Receipt[] = [
     confidence: 0.89,
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
+    wallet: 'Family',
   },
     {
     id: '5',
@@ -72,6 +76,7 @@ const mockReceipts: Receipt[] = [
     confidence: 0.99,
     isFraudulent: false,
     fraudulentDetails: 'No fraudulent activity detected.',
+    wallet: 'Personal',
   },
   {
     id: '4',
@@ -84,21 +89,47 @@ const mockReceipts: Receipt[] = [
     confidence: 0.92,
     isFraudulent: true,
     fraudulentDetails: 'This receipt appears to be a duplicate of a transaction from July 14th. High-value single item is suspicious.',
+    wallet: 'Personal',
+  },
+  {
+    id: '6',
+    image: getCategoryImage('Utilities'),
+    vendor: 'PowerLight Co.',
+    date: '2024-07-15',
+    totalAmount: 1500,
+    itemizedList: [{ item: 'Electricity Bill', price: 1500 }],
+    category: 'Utilities',
+    confidence: 0.99,
+    isFraudulent: false,
+    fraudulentDetails: 'No fraudulent activity detected.',
+    wallet: 'Family',
   },
 ];
+
+type WalletType = 'Personal' | 'Family';
 
 export function Dashboard() {
   const [receipts, setReceipts] = React.useState<Receipt[]>(mockReceipts);
   const [isUploadOpen, setUploadOpen] = React.useState(false);
+  const [activeWallet, setActiveWallet] = React.useState<WalletType>('Family');
   const { toast } = useToast();
 
-  const handleAddReceipt = (newReceipt: Receipt) => {
+  const handleAddReceipt = (newReceiptData: Omit<Receipt, 'id' | 'image'>) => {
+    const newReceipt: Receipt = {
+      ...newReceiptData,
+      id: new Date().toISOString(),
+      image: getCategoryImage(newReceiptData.category), // Use category image for now
+      wallet: activeWallet, // Add to the currently active wallet
+    };
+    
     setReceipts(prevReceipts => [newReceipt, ...prevReceipts]);
     toast({
       title: "Success!",
-      description: `Receipt from ${newReceipt.vendor} has been added.`,
+      description: `Receipt from ${newReceipt.vendor} has been added to ${activeWallet} wallet.`,
     });
   };
+
+  const filteredReceipts = receipts.filter(r => r.wallet === activeWallet);
   
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -106,9 +137,30 @@ export function Dashboard() {
         <div className="flex items-center gap-2">
           <Wallet className="h-7 w-7 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">
-            ReceiptWise <span className="text-primary">Wallet</span>
+            ReceiptWise
           </h1>
         </div>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="ml-4">
+              {activeWallet === 'Personal' ? <Wallet className="mr-2 h-4 w-4" /> : <Users className="mr-2 h-4 w-4" />}
+              {activeWallet} Wallet
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onSelect={() => setActiveWallet('Personal')}>
+              <Wallet className="mr-2 h-4 w-4" />
+              <span>Personal</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setActiveWallet('Family')}>
+              <Users className="mr-2 h-4 w-4" />
+              <span>Family</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <div className="ml-auto">
           <Button onClick={() => setUploadOpen(true)}>
             <PlusCircle className="mr-2 h-5 w-5" />
@@ -127,16 +179,16 @@ export function Dashboard() {
           </TabsList>
 
           <TabsContent value="wallet" className="mt-6">
-            <DigitalWallet receipts={receipts} />
+            <DigitalWallet receipts={filteredReceipts} />
           </TabsContent>
           <TabsContent value="analytics" className="mt-6">
-            <SpendingAnalytics receipts={receipts} />
+            <SpendingAnalytics receipts={filteredReceipts} />
           </TabsContent>
           <TabsContent value="alerts" className="mt-6">
-            <SmartAlerts receipts={receipts} />
+            <SmartAlerts receipts={filteredReceipts} />
           </TabsContent>
           <TabsContent value="ask-ai" className="mt-6">
-            <AskAI receipts={receipts} />
+            <AskAI receipts={filteredReceipts} />
           </TabsContent>
         </Tabs>
       </main>
