@@ -84,16 +84,18 @@ export function DigitalWallet({ receipts }: DigitalWalletProps) {
                     </div>
                   </CardHeader>
                   <CardContent className="flex-grow p-0">
-                     <div className="relative h-40 w-full">
-                       <Image 
-                          src={src}
-                          alt={`Receipt from ${receipt.vendor}`}
-                          layout="fill"
-                          objectFit="cover"
-                          data-ai-hint={hint}
-                        />
-                       <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
-                    </div>
+                  <div className="relative h-40 w-full">
+                  <Image 
+  src={src}
+  alt={`Receipt from ${receipt.vendor}`}
+  fill
+  style={{ objectFit: 'cover' }}
+  data-ai-hint={hint}
+/>
+
+  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
+</div>
+
                   </CardContent>
                   <CardFooter className="flex justify-between items-center bg-muted/30 p-4">
                     <Badge variant="outline" className={cn("font-medium text-sm", categoryColors[receipt.category] || categoryColors['Other'])}>

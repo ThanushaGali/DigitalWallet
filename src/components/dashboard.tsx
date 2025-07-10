@@ -1,9 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { Bell, FileInput, PlusCircle, Wallet, Sparkles, BarChart, FileDown } from 'lucide-react';
+import { Bell, FileInput, PlusCircle, Wallet, Sparkles, BarChart, FileDown, LogOut } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -21,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ImportReceipt } from '@/components/import-receipt';
 import { AskAi } from '@/components/ask-ai';
 import { SpendingAnalysis } from '@/components/spending-analysis';
+import { useAuth } from '@/context/auth-context';
 
 const mockReceipts: Receipt[] = [
   {
@@ -112,12 +114,31 @@ export function Dashboard() {
   const [isUploadOpen, setUploadOpen] = React.useState(false);
   const [isImportOpen, setImportOpen] = React.useState(false);
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.push('/login');
+      toast({
+        title: "Signed Out",
+        description: "You have been successfully signed out.",
+      });
+    } catch (error) {
+       toast({
+        variant: "destructive",
+        title: "Sign Out Failed",
+        description: "There was a problem signing you out. Please try again.",
+      });
+    }
+  };
+  
   const handleAddReceipt = (newReceiptData: Omit<Receipt, 'id' | 'image'>) => {
     const newReceipt: Receipt = {
       ...newReceiptData,
       id: new Date().toISOString(),
-      // The image will be set by the getCategoryImage utility
+      // The image will be set by the getCategoryImageWithHint utility
       image: 'images/other.jpg',
     };
     
@@ -193,6 +214,9 @@ export function Dashboard() {
                 <DropdownMenuItem onClick={handleExportPDF}>Export as PDF</DropdownMenuItem>
             </DropdownMenuContent>
            </DropdownMenu>
+           <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign Out">
+             <LogOut className="h-5 w-5" />
+           </Button>
         </div>
       </header>
 
