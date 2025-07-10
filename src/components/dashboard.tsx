@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { BarChart, Bell, ChevronDown, MessageSquare, PlusCircle, Target, Users, Wallet } from 'lucide-react';
+import { BarChart, Bell, ChevronDown, MessageSquare, PlusCircle, Target, Users, Wallet, FileInput } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getCategoryImage } from '@/lib/utils';
 import { AskAI } from '@/components/ask-ai';
 import { ExpenseBudgets } from '@/components/expense-budgets';
+import { ImportReceipt } from '@/components/import-receipt';
 
 const mockReceipts: Receipt[] = [
   {
@@ -172,12 +173,13 @@ export function Dashboard() {
 
       <main className="flex-1 p-4 md:p-8">
         <Tabs defaultValue="wallet" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex md:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex md:grid-cols-6">
             <TabsTrigger value="wallet"><Wallet className="mr-2 h-4 w-4" /> Digital Wallet</TabsTrigger>
             <TabsTrigger value="analytics"><BarChart className="mr-2 h-4 w-4" /> Analytics</TabsTrigger>
             <TabsTrigger value="budgets"><Target className="mr-2 h-4 w-4" /> Budgets</TabsTrigger>
             <TabsTrigger value="alerts"><Bell className="mr-2 h-4 w-4" /> Smart Alerts</TabsTrigger>
             <TabsTrigger value="ask-ai"><MessageSquare className="mr-2 h-4 w-4" /> Ask AI</TabsTrigger>
+            <TabsTrigger value="import"><FileInput className="mr-2 h-4 w-4" /> Import</TabsTrigger>
           </TabsList>
 
           <TabsContent value="wallet" className="mt-6">
@@ -194,6 +196,9 @@ export function Dashboard() {
           </TabsContent>
           <TabsContent value="ask-ai" className="mt-6">
             <AskAI receipts={filteredReceipts} />
+          </TabsContent>
+           <TabsContent value="import" className="mt-6">
+            <ImportReceipt onReceiptAdd={handleAddReceipt}/>
           </TabsContent>
         </Tabs>
       </main>
