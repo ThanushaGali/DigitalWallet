@@ -81,22 +81,23 @@ export function DigitalWallet({ receipts }: DigitalWalletProps) {
                     {receipt.isFraudulent && <AlertCircle className="h-5 w-5 text-destructive" />}
                   </div>
                 </CardHeader>
-                <CardContent className="flex-grow">
-                  <div className="relative h-40 w-full rounded-md overflow-hidden mb-4">
+                <CardContent className="flex-grow p-0">
+                   <div className="relative h-40 w-full">
                      <Image 
-                        src={getCategoryImage(receipt.category)}
+                        src={receipt.image}
                         alt={`Receipt from ${receipt.vendor}`}
                         layout="fill"
                         objectFit="cover" 
+                        data-ai-hint={receipt.category.toLowerCase()}
                       />
-                     <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+                     <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between items-center bg-muted/50 p-4">
-                  <Badge variant="outline" className={cn("font-medium", categoryColors[receipt.category] || categoryColors['Other'])}>
+                <CardFooter className="flex justify-between items-center bg-muted/30 p-4">
+                  <Badge variant="outline" className={cn("font-medium text-sm", categoryColors[receipt.category] || categoryColors['Other'])}>
                     {receipt.category}
                   </Badge>
-                  <div className="text-2xl font-bold text-foreground">
+                  <div className="text-xl font-bold text-foreground">
                     ₹{receipt.totalAmount.toFixed(2)}
                   </div>
                 </CardFooter>

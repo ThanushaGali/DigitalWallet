@@ -12,7 +12,6 @@ import { SmartAlerts } from '@/components/smart-alerts';
 import { ReceiptUpload } from '@/components/receipt-upload';
 import type { Receipt } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { getCategoryImage } from '@/lib/utils';
 import { AskAI } from '@/components/ask-ai';
 import { ExpenseBudgets } from '@/components/expense-budgets';
 import { ImportReceipt } from '@/components/import-receipt';
@@ -20,7 +19,7 @@ import { ImportReceipt } from '@/components/import-receipt';
 const mockReceipts: Receipt[] = [
   {
     id: '1',
-    image: getCategoryImage('Groceries'),
+    image: 'https://placehold.co/600x400.png',
     vendor: 'Fresh Mart',
     date: '2024-07-20',
     totalAmount: 620,
@@ -37,7 +36,7 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '2',
-    image: getCategoryImage('Dining'),
+    image: 'https://placehold.co/600x400.png',
     vendor: 'The Daily Grind Cafe',
     date: '2024-07-19',
     totalAmount: 105,
@@ -53,7 +52,7 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '3',
-    image: getCategoryImage('Travel'),
+    image: 'https://placehold.co/600x400.png',
     vendor: 'City Gas',
     date: '2024-07-18',
     totalAmount: 375,
@@ -66,7 +65,7 @@ const mockReceipts: Receipt[] = [
   },
     {
     id: '5',
-    image: getCategoryImage('Dining'),
+    image: 'https://placehold.co/600x400.png',
     vendor: 'The Daily Grind Cafe',
     date: '2024-07-21',
     totalAmount: 125,
@@ -82,7 +81,7 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '4',
-    image: getCategoryImage('Shopping'),
+    image: 'https://placehold.co/600x400.png',
     vendor: 'Duplicate Store',
     date: '2024-07-15',
     totalAmount: 2500,
@@ -95,7 +94,7 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '6',
-    image: getCategoryImage('Utilities'),
+    image: 'https://placehold.co/600x400.png',
     vendor: 'PowerLight Co.',
     date: '2024-07-15',
     totalAmount: 1500,
@@ -120,7 +119,7 @@ export function Dashboard() {
     const newReceipt: Receipt = {
       ...newReceiptData,
       id: new Date().toISOString(),
-      image: getCategoryImage(newReceiptData.category), // Use category image for now
+      image: 'https://placehold.co/600x400.png', // Use placeholder for now
       wallet: activeWallet, // Add to the currently active wallet
     };
     
