@@ -19,3 +19,18 @@ export function getCategoryImage(category: string): string {
   };
   return categoryImages[category] || categoryImages['Other'];
 }
+
+export function getCategoryImageWithHint(category: string): { src: string; hint: string } {
+  const categoryInfo: { [key: string]: { src: string; hint: string } } = {
+    Groceries: { src: 'https://placehold.co/600x400.png', hint: 'grocery store' },
+    Dining: { src: 'https://placehold.co/600x400.png', hint: 'restaurant food' },
+    Travel: { src: 'https://placehold.co/600x400.png', hint: 'travel destination' },
+    Health: { src: 'https://placehold.co/600x400.png', hint: 'medical pharmacy' },
+    Entertainment: { src: 'https://placehold.co/600x400.png', hint: 'movie theater' },
+    Shopping: { src: 'https://placehold.co/600x400.png', hint: 'shopping retail' },
+    Utilities: { src: 'https://placehold.co/600x400.png', hint: 'power lines' },
+    Rent: { src: 'https://placehold.co/600x400.png', hint: 'apartment building' },
+    Other: { src: 'https://placehold.co/600x400.png', hint: 'abstract texture' },
+  };
+  return categoryInfo[category] || categoryInfo['Other'];
+}

@@ -17,7 +17,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ReceiptDetails } from '@/components/receipt-details';
 import type { Receipt } from '@/types';
 import { AlertCircle, Calendar } from 'lucide-react';
-import { cn, getCategoryImage } from '@/lib/utils';
+import { cn, getCategoryImageWithHint } from '@/lib/utils';
 import { format } from 'date-fns';
 
 interface DigitalWalletProps {
@@ -55,54 +55,58 @@ export function DigitalWallet({ receipts }: DigitalWalletProps) {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <AnimatePresence>
-          {receipts.map((receipt, index) => (
-            <motion.div
-              key={receipt.id}
-              layout
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              onClick={() => setSelectedReceipt(receipt)}
-            >
-              <Card className={cn(
-                "cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-transform duration-300 overflow-hidden flex flex-col h-full",
-                receipt.isFraudulent && 'border-destructive/50 hover:border-destructive'
-              )}>
-                <CardHeader className="pb-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-xl">{receipt.vendor}</CardTitle>
-                      <CardDescription className="flex items-center gap-1.5 pt-1">
-                          <Calendar className="h-3.5 w-3.5" /> 
-                          {format(new Date(receipt.date), 'PPP')}
-                      </CardDescription>
+          {receipts.map((receipt, index) => {
+            const { src, hint } = getCategoryImageWithHint(receipt.category);
+            return (
+              <motion.div
+                key={receipt.id}
+                layout
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                onClick={() => setSelectedReceipt(receipt)}
+              >
+                <Card className={cn(
+                  "cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-transform duration-300 overflow-hidden flex flex-col h-full",
+                  receipt.isFraudulent && 'border-destructive/50 hover:border-destructive'
+                )}>
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-xl">{receipt.vendor}</CardTitle>
+                        <CardDescription className="flex items-center gap-1.5 pt-1">
+                            <Calendar className="h-3.5 w-3.5" /> 
+                            {format(new Date(receipt.date), 'PPP')}
+                        </CardDescription>
+                      </div>
+                      {receipt.isFraudulent && <AlertCircle className="h-5 w-5 text-destructive" />}
                     </div>
-                    {receipt.isFraudulent && <AlertCircle className="h-5 w-5 text-destructive" />}
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-grow p-0">
-                   <div className="relative h-40 w-full">
-                     <Image 
-                        src={getCategoryImage(receipt.category)}
-                        alt={`Receipt from ${receipt.vendor}`}
-                        layout="fill"
-                        objectFit="cover" 
-                      />
-                     <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-between items-center bg-muted/30 p-4">
-                  <Badge variant="outline" className={cn("font-medium text-sm", categoryColors[receipt.category] || categoryColors['Other'])}>
-                    {receipt.category}
-                  </Badge>
-                  <div className="text-xl font-bold text-foreground">
-                    ₹{receipt.totalAmount.toFixed(2)}
-                  </div>
-                </CardFooter>
-              </Card>
-            </motion.div>
-          ))}
+                  </CardHeader>
+                  <CardContent className="flex-grow p-0">
+                     <div className="relative h-40 w-full">
+                       <Image 
+                          src={src}
+                          alt={`Receipt from ${receipt.vendor}`}
+                          layout="fill"
+                          objectFit="cover"
+                          data-ai-hint={hint}
+                        />
+                       <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-between items-center bg-muted/30 p-4">
+                    <Badge variant="outline" className={cn("font-medium text-sm", categoryColors[receipt.category] || categoryColors['Other'])}>
+                      {receipt.category}
+                    </Badge>
+                    <div className="text-xl font-bold text-foreground">
+                      ₹{receipt.totalAmount.toFixed(2)}
+                    </div>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            )
+          })}
         </AnimatePresence>
       </div>
 
