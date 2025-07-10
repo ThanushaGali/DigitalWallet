@@ -32,10 +32,12 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
   } = receipt;
   
   const qrData = {
-      vendor,
-      date,
-      totalAmount,
-      items: itemizedList.map(i => `${i.item}: ₹${i.price.toFixed(2)}`).join(', '),
+    id: receipt.id,
+    vendor: receipt.vendor,
+    date: receipt.date,
+    totalAmount: receipt.totalAmount,
+    itemizedList: receipt.itemizedList,
+    category: receipt.category,
   };
 
   return (
