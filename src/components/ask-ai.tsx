@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Bot, Loader2, Send, User, Sparkles } from 'lucide-react';
+import { Bot, Loader2, Send, User, Sparkles, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { processQuery } from '@/app/actions';
 import type { Receipt } from '@/types';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface AskAiProps {
   receipts: Receipt[];
@@ -32,11 +33,27 @@ const examplePrompts = [
   "Which vendor did I shop at most frequently?"
 ];
 
+// Reference for the SpeechRecognition API
+let recognition: any = null;
+if (typeof window !== 'undefined') {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+  }
+}
+
+
 export function AskAi({ receipts }: AskAiProps) {
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = React.useState(false);
+  const [isListening, setIsListening] = React.useState(false);
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
-  const { register, handleSubmit, reset, formState: { isValid } } = useForm<FormValues>();
+  const { register, handleSubmit, reset, setValue, formState: { isValid } } = useForm<FormValues>();
+  const { toast } = useToast();
 
   React.useEffect(() => {
     // Scroll to the bottom when new messages are added
@@ -48,12 +65,11 @@ export function AskAi({ receipts }: AskAiProps) {
     }
   }, [messages]);
   
-
   const handleQuery = async (prompt: string) => {
     if (!prompt) return;
     setIsProcessing(true);
     setMessages(prev => [...prev, { role: 'user', content: prompt }]);
-    reset();
+    reset({ prompt: ''});
 
     try {
       const answer = await processQuery(prompt, receipts);
@@ -67,6 +83,45 @@ export function AskAi({ receipts }: AskAiProps) {
       setIsProcessing(false);
     }
   }
+
+  const handleVoiceInput = () => {
+    if (!recognition) {
+        toast({
+            variant: 'destructive',
+            title: 'Voice recognition not supported',
+            description: 'Your browser does not support the Web Speech API.'
+        });
+        return;
+    }
+
+    if (isListening) {
+      recognition.stop();
+      setIsListening(false);
+      return;
+    }
+    
+    recognition.start();
+    setIsListening(true);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setValue('prompt', transcript, { shouldValidate: true });
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event: any) => {
+        toast({
+            variant: 'destructive',
+            title: 'Voice recognition error',
+            description: event.error === 'not-allowed' ? 'Microphone access was denied.' : 'An error occurred during voice recognition.',
+        });
+        setIsListening(false);
+    };
+    
+    recognition.onend = () => {
+        setIsListening(false);
+    };
+  };
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
     handleQuery(data.prompt);
@@ -147,10 +202,14 @@ export function AskAi({ receipts }: AskAiProps) {
                 <form onSubmit={handleSubmit(onSubmit)} className="flex items-center gap-2">
                     <Input
                     {...register('prompt')}
-                    placeholder="e.g., How much did I spend on dining this month?"
+                    placeholder="Ask a question or click the mic to speak..."
                     autoComplete="off"
                     disabled={isProcessing}
                     />
+                    <Button type="button" size="icon" variant={isListening ? 'destructive' : 'outline'} onClick={handleVoiceInput} disabled={isProcessing}>
+                       <Mic />
+                       <span className="sr-only">{isListening ? 'Stop listening' : 'Start listening'}</span>
+                    </Button>
                     <Button type="submit" size="icon" disabled={isProcessing || !isValid}>
                         {isProcessing ? <Loader2 className="animate-spin" /> : <Send />}
                         <span className="sr-only">Send</span>
