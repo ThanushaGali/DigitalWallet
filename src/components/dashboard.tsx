@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Bell, FileInput, PlusCircle, Wallet } from 'lucide-react';
+import { Bell, FileInput, PlusCircle, Wallet, Sparkles } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,6 +11,7 @@ import { ReceiptUpload } from '@/components/receipt-upload';
 import type { Receipt } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { ImportReceipt } from '@/components/import-receipt';
+import { AskAi } from '@/components/ask-ai';
 
 const mockReceipts: Receipt[] = [
   {
@@ -103,7 +104,7 @@ export function Dashboard() {
   const [isImportOpen, setImportOpen] = React.useState(false);
   const { toast } = useToast();
 
-  const handleAddReceipt = (newReceiptData: Omit<Receipt, 'id' | 'image' | 'wallet'>) => {
+  const handleAddReceipt = (newReceiptData: Omit<Receipt, 'id' | 'image'>) => {
     const newReceipt: Receipt = {
       ...newReceiptData,
       id: new Date().toISOString(),
@@ -142,9 +143,10 @@ export function Dashboard() {
 
       <main className="flex-1 p-4 md:p-8">
         <Tabs defaultValue="wallet" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex">
+          <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex">
             <TabsTrigger value="wallet"><Wallet className="mr-2 h-4 w-4" /> Digital Wallet</TabsTrigger>
             <TabsTrigger value="alerts"><Bell className="mr-2 h-4 w-4" /> Smart Reminders</TabsTrigger>
+            <TabsTrigger value="ask-ai"><Sparkles className="mr-2 h-4 w-4" /> Ask AI</TabsTrigger>
           </TabsList>
 
           <TabsContent value="wallet" className="mt-6">
@@ -152,6 +154,9 @@ export function Dashboard() {
           </TabsContent>
           <TabsContent value="alerts" className="mt-6">
             <SmartAlerts receipts={receipts} />
+          </TabsContent>
+          <TabsContent value="ask-ai" className="mt-6 h-[calc(100vh-200px)]">
+            <AskAi receipts={receipts} />
           </TabsContent>
         </Tabs>
       </main>
