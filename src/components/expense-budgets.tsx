@@ -158,30 +158,3 @@ export function ExpenseBudgets({ receipts }: ExpenseBudgetsProps) {
     </Card>
   );
 }
-
-// Add this to ui/progress.tsx if it's not already there.
-// For now, adding a temporary solution directly here to avoid file conflicts.
-declare module '@/components/ui/progress' {
-    interface ProgressProps {
-        indicatorClassName?: string;
-    }
-}
-// This is a monkey patch for the Progress component to allow custom indicator colors.
-// A better solution would be to modify the component directly if possible.
-const originalProgress = Progress;
-(originalProgress as any).render = (props: React.ComponentProps<typeof Progress> & { indicatorClassName?: string }) => {
-    const { className, value, indicatorClassName, ...rest } = props;
-    return (
-        <originalProgress.type
-            ref={props.ref}
-            className={cn("relative h-4 w-full overflow-hidden rounded-full bg-secondary", className)}
-            {...rest}
-            value={value}
-        >
-            <div
-                className={cn("h-full w-full flex-1 bg-primary transition-all", indicatorClassName)}
-                style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-            />
-        </originalProgress.type>
-    );
-};
