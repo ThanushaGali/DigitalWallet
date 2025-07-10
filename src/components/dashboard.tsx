@@ -11,18 +11,19 @@ import { SmartAlerts } from '@/components/smart-alerts';
 import { ReceiptUpload } from '@/components/receipt-upload';
 import type { Receipt } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { getCategoryImage } from '@/lib/utils';
 
 const mockReceipts: Receipt[] = [
   {
     id: '1',
-    image: 'https://placehold.co/400x600.png',
+    image: getCategoryImage('Groceries'),
     vendor: 'Fresh Mart',
     date: '2024-07-20',
-    totalAmount: 6200,
+    totalAmount: 620,
     itemizedList: [
-      { item: 'Organic Avocados', price: 490 },
-      { item: 'Almond Milk', price: 290 },
-      { item: 'Whole Wheat Bread', price: 350 },
+      { item: 'Organic Avocados', price: 49 },
+      { item: 'Almond Milk', price: 29 },
+      { item: 'Whole Wheat Bread', price: 35 },
     ],
     category: 'Groceries',
     confidence: 0.95,
@@ -31,13 +32,13 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '2',
-    image: 'https://placehold.co/400x600.png',
+    image: getCategoryImage('Dining'),
     vendor: 'The Daily Grind Cafe',
     date: '2024-07-19',
-    totalAmount: 1050,
+    totalAmount: 105,
     itemizedList: [
-      { item: 'Large Latte', price: 450 },
-      { item: 'Croissant', price: 300 },
+      { item: 'Large Latte', price: 45 },
+      { item: 'Croissant', price: 30 },
     ],
     category: 'Dining',
     confidence: 0.98,
@@ -46,11 +47,11 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '3',
-    image: 'https://placehold.co/400x600.png',
+    image: getCategoryImage('Travel'),
     vendor: 'City Gas',
     date: '2024-07-18',
-    totalAmount: 3750,
-    itemizedList: [{ item: 'Unleaded Fuel', price: 3750 }],
+    totalAmount: 375,
+    itemizedList: [{ item: 'Unleaded Fuel', price: 375 }],
     category: 'Travel',
     confidence: 0.89,
     isFraudulent: false,
@@ -58,11 +59,11 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '4',
-    image: 'https://placehold.co/400x600.png',
+    image: getCategoryImage('Shopping'),
     vendor: 'Duplicate Store',
     date: '2024-07-15',
-    totalAmount: 12500,
-    itemizedList: [{ item: 'Luxury Item', price: 12500 }],
+    totalAmount: 1250,
+    itemizedList: [{ item: 'Luxury Item', price: 1250 }],
     category: 'Shopping',
     confidence: 0.92,
     isFraudulent: true,

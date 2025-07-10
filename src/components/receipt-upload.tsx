@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { processReceipt } from '@/app/actions';
 import type { Receipt } from '@/types';
 import Image from 'next/image';
+import { getCategoryImage } from '@/lib/utils';
 
 const UploadSchema = z.object({
   receipt: z
@@ -71,7 +72,7 @@ export function ReceiptUpload({ isOpen, setIsOpen, onReceiptAdd }: ReceiptUpload
         onReceiptAdd({
           ...result,
           id: new Date().toISOString(),
-          image: photoDataUri,
+          image: photoDataUri, // We still pass the original image
         });
         handleClose();
       } catch (error: any) {

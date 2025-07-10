@@ -9,11 +9,11 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { QRCodeGenerator } from '@/components/qr-code-generator';
 import Image from 'next/image';
-import { AlertTriangle, Bot, Calendar, FileJson, QrCode, ShoppingCart, Tag } from 'lucide-react';
+import { AlertTriangle, Bot, Calendar, QrCode, ShoppingCart } from 'lucide-react';
 import { format } from 'date-fns';
+import { getCategoryImage } from '@/lib/utils';
 
 interface ReceiptDetailsProps {
   receipt: Receipt;
@@ -90,7 +90,7 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
 
         <div className="md:col-span-1 space-y-6">
           <div className="relative w-full h-48 rounded-lg overflow-hidden border">
-            <Image src={image} data-ai-hint="store receipt" alt={`Receipt from ${vendor}`} layout="fill" objectFit="contain" />
+            <Image src={getCategoryImage(category)} alt={`Receipt from ${vendor}`} layout="fill" objectFit="contain" />
           </div>
           <div>
               <h3 className="font-semibold text-lg mb-3 flex items-center gap-2"><QrCode className="h-5 w-5 text-primary" /> Digital Pass</h3>

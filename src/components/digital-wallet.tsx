@@ -16,8 +16,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ReceiptDetails } from '@/components/receipt-details';
 import type { Receipt } from '@/types';
-import { AlertCircle, Calendar, DollarSign, Tag } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { AlertCircle, Calendar } from 'lucide-react';
+import { cn, getCategoryImage } from '@/lib/utils';
 import { format } from 'date-fns';
 
 interface DigitalWalletProps {
@@ -83,7 +83,12 @@ export function DigitalWallet({ receipts }: DigitalWalletProps) {
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="relative h-40 w-full rounded-md overflow-hidden mb-4">
-                     <Image src={receipt.image} data-ai-hint="store receipt" alt={`Receipt from ${receipt.vendor}`} layout="fill" objectFit="cover" className="opacity-50" />
+                     <Image 
+                        src={getCategoryImage(receipt.category)}
+                        alt={`Receipt from ${receipt.vendor}`}
+                        layout="fill"
+                        objectFit="cover" 
+                      />
                      <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
                   </div>
                 </CardContent>
