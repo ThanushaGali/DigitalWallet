@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { BarChart, Bell, ChevronDown, MessageSquare, PlusCircle, Users, Wallet } from 'lucide-react';
+import { BarChart, Bell, ChevronDown, MessageSquare, PlusCircle, Target, Users, Wallet } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,6 +14,7 @@ import type { Receipt } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { getCategoryImage } from '@/lib/utils';
 import { AskAI } from '@/components/ask-ai';
+import { ExpenseBudgets } from '@/components/expense-budgets';
 
 const mockReceipts: Receipt[] = [
   {
@@ -171,9 +172,10 @@ export function Dashboard() {
 
       <main className="flex-1 p-4 md:p-8">
         <Tabs defaultValue="wallet" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 md:w-auto md:inline-flex">
+          <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex md:grid-cols-5">
             <TabsTrigger value="wallet"><Wallet className="mr-2 h-4 w-4" /> Digital Wallet</TabsTrigger>
             <TabsTrigger value="analytics"><BarChart className="mr-2 h-4 w-4" /> Analytics</TabsTrigger>
+            <TabsTrigger value="budgets"><Target className="mr-2 h-4 w-4" /> Budgets</TabsTrigger>
             <TabsTrigger value="alerts"><Bell className="mr-2 h-4 w-4" /> Smart Alerts</TabsTrigger>
             <TabsTrigger value="ask-ai"><MessageSquare className="mr-2 h-4 w-4" /> Ask AI</TabsTrigger>
           </TabsList>
@@ -183,6 +185,9 @@ export function Dashboard() {
           </TabsContent>
           <TabsContent value="analytics" className="mt-6">
             <SpendingAnalytics receipts={filteredReceipts} />
+          </TabsContent>
+          <TabsContent value="budgets" className="mt-6">
+            <ExpenseBudgets receipts={filteredReceipts} />
           </TabsContent>
           <TabsContent value="alerts" className="mt-6">
             <SmartAlerts receipts={filteredReceipts} />
