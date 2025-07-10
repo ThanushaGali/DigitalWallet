@@ -1,9 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { Bell, FileInput, PlusCircle, Wallet, Sparkles, BarChart } from 'lucide-react';
+import { Bell, FileInput, PlusCircle, Wallet, Sparkles, BarChart, FileDown } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DigitalWallet } from '@/components/digital-wallet';
 import { SmartAlerts } from '@/components/smart-alerts';
@@ -119,6 +127,40 @@ export function Dashboard() {
       description: `Receipt from ${newReceipt.vendor} has been added.`,
     });
   };
+
+  const handleExportCSV = () => {
+    if (receipts.length === 0) {
+        toast({ variant: 'destructive', title: "No receipts to export." });
+        return;
+    }
+    const headers = ['ID', 'Date', 'Vendor', 'Total Amount', 'Category', 'Is Fraudulent', 'Fraud Details'];
+    const rows = receipts.map(r => 
+        [r.id, r.date, `"${r.vendor.replace(/"/g, '""')}"`, r.totalAmount, r.category, r.isFraudulent, `"${r.fraudulentDetails.replace(/"/g, '""')}"`].join(',')
+    );
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "receipts.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+  const handleExportPDF = () => {
+    if (receipts.length === 0) {
+        toast({ variant: 'destructive', title: "No receipts to export." });
+        return;
+    }
+    const doc = new jsPDF();
+    doc.text("Receipts Export", 14, 16);
+    autoTable(doc, {
+        head: [['Date', 'Vendor', 'Category', 'Total (₹)']],
+        body: receipts.map(r => [r.date, r.vendor, r.category, r.totalAmount.toFixed(2)]),
+        startY: 20,
+    });
+    doc.save('receipts.pdf');
+  };
   
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -139,6 +181,18 @@ export function Dashboard() {
             <PlusCircle className="mr-2 h-5 w-5" />
             Add Receipt
           </Button>
+           <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                    <FileDown className="mr-2 h-5 w-5" />
+                    Export
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleExportCSV}>Export as CSV</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportPDF}>Export as PDF</DropdownMenuItem>
+            </DropdownMenuContent>
+           </DropdownMenu>
         </div>
       </header>
 
