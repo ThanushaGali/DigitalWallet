@@ -3,6 +3,7 @@
 import { extractReceiptData } from '@/ai/flows/extract-receipt-data';
 import { categorizeSpending } from '@/ai/flows/categorize-spending';
 import { detectFraudulentReceipt } from '@/ai/flows/detect-fraudulent-receipt';
+import { queryReceipts } from '@/ai/flows/query-receipts-flow';
 import type { Receipt } from '@/types';
 
 export async function processReceipt(photoDataUri: string): Promise<Omit<Receipt, 'id' | 'image'>> {
@@ -26,5 +27,18 @@ export async function processReceipt(photoDataUri: string): Promise<Omit<Receipt
   } catch (error) {
     console.error("Error processing receipt:", error);
     throw new Error("Failed to process receipt. The AI model might be unable to read the data.");
+  }
+}
+
+export async function askAI(query: string, receipts: Receipt[]): Promise<string> {
+  try {
+    const result = await queryReceipts({
+      query,
+      receipts: JSON.stringify(receipts),
+    });
+    return result.answer;
+  } catch (error) {
+    console.error("Error asking AI:", error);
+    throw new Error("The AI assistant is currently unavailable. Please try again later.");
   }
 }

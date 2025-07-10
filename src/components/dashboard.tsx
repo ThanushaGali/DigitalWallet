@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { BarChart, Bell, Bot, PlusCircle, Wallet } from 'lucide-react';
+import { BarChart, Bell, Bot, MessageSquare, PlusCircle, Wallet } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,6 +12,7 @@ import { ReceiptUpload } from '@/components/receipt-upload';
 import type { Receipt } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { getCategoryImage } from '@/lib/utils';
+import { AskAI } from '@/components/ask-ai';
 
 const mockReceipts: Receipt[] = [
   {
@@ -103,10 +104,11 @@ export function Dashboard() {
 
       <main className="flex-1 p-4 md:p-8">
         <Tabs defaultValue="wallet" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:w-[400px] bg-primary/10">
+          <TabsList className="grid w-full grid-cols-4 md:w-auto md:inline-flex">
             <TabsTrigger value="wallet"><Wallet className="mr-2 h-4 w-4" /> Digital Wallet</TabsTrigger>
             <TabsTrigger value="analytics"><BarChart className="mr-2 h-4 w-4" /> Analytics</TabsTrigger>
             <TabsTrigger value="alerts"><Bell className="mr-2 h-4 w-4" /> Smart Alerts</TabsTrigger>
+            <TabsTrigger value="ask-ai"><MessageSquare className="mr-2 h-4 w-4" /> Ask AI</TabsTrigger>
           </TabsList>
 
           <TabsContent value="wallet" className="mt-6">
@@ -117,6 +119,9 @@ export function Dashboard() {
           </TabsContent>
           <TabsContent value="alerts" className="mt-6">
             <SmartAlerts />
+          </TabsContent>
+          <TabsContent value="ask-ai" className="mt-6">
+            <AskAI receipts={receipts} />
           </TabsContent>
         </Tabs>
       </main>
