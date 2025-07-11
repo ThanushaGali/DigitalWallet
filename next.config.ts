@@ -11,7 +11,6 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: ['www.decorilla.com'],
     remotePatterns: [
       {
         protocol: 'https',
