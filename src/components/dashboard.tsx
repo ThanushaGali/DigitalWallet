@@ -23,11 +23,12 @@ import { ImportReceipt } from '@/components/import-receipt';
 import { AskAi } from '@/components/ask-ai';
 import { SpendingAnalysis } from '@/components/spending-analysis';
 import { useAuth } from '@/context/auth-context';
+import { getCategoryImageWithHint } from '@/lib/utils';
 
 const mockReceipts: Receipt[] = [
   {
     id: '1',
-    image: '/images/groceries.jpg',
+    image: getCategoryImageWithHint('Groceries').src,
     vendor: 'Fresh Mart',
     date: '2024-07-20',
     totalAmount: 620,
@@ -43,7 +44,7 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '2',
-    image: '/images/dining.jpg',
+    image: getCategoryImageWithHint('Dining').src,
     vendor: 'The Daily Grind Cafe',
     date: '2024-07-19',
     totalAmount: 105,
@@ -58,7 +59,7 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '3',
-    image: '/images/travel.jpg',
+    image: getCategoryImageWithHint('Travel').src,
     vendor: 'City Gas',
     date: '2024-07-18',
     totalAmount: 375,
@@ -70,7 +71,7 @@ const mockReceipts: Receipt[] = [
   },
     {
     id: '5',
-    image: '/images/dining.jpg',
+    image: getCategoryImageWithHint('Dining').src,
     vendor: 'The Daily Grind Cafe',
     date: '2024-07-21',
     totalAmount: 125,
@@ -85,7 +86,7 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '4',
-    image: '/images/shopping.jpg',
+    image: getCategoryImageWithHint('Shopping').src,
     vendor: 'Duplicate Store',
     date: '2024-07-15',
     totalAmount: 2500,
@@ -97,7 +98,7 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '6',
-    image: '/images/utilities.jpg',
+    image: getCategoryImageWithHint('Utilities').src,
     vendor: 'PowerLight Co.',
     date: '2024-07-15',
     totalAmount: 1500,
@@ -139,7 +140,7 @@ export function Dashboard() {
       ...newReceiptData,
       id: new Date().toISOString(),
       // The image will be set by the getCategoryImageWithHint utility
-      image: 'images/other.jpg',
+      image: getCategoryImageWithHint('Other').src,
     };
     
     setReceipts(prevReceipts => [newReceipt, ...prevReceipts]);
