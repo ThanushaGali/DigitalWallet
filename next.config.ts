@@ -2,8 +2,8 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'export',
-  basePath: '/DigitalWallet',
-  assetPrefix: '/DigitalWallet/',
+  basePath: process.env.NODE_ENV === 'production' ? '/DigitalWallet' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/DigitalWallet/' : '',
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -13,24 +13,14 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
     remotePatterns: [
-       {
+      {
         protocol: 'https',
         hostname: 'placehold.co',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'thumbs.dreamstime.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'images.hdqwalls.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.pixabay.com',
         pathname: '/**',
       },
       {
@@ -50,12 +40,17 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'a.cdn-hotels.com',
+        hostname: 'cdn.pixabay.com',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'www.decorilla.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'a.cdn-hotels.com',
         pathname: '/**',
       },
     ],
