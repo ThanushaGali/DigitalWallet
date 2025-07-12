@@ -23,12 +23,10 @@ import { ImportReceipt } from '@/components/import-receipt';
 import { AskAi } from '@/components/ask-ai';
 import { SpendingAnalysis } from '@/components/spending-analysis';
 import { useAuth } from '@/context/auth-context';
-import { getCategoryImageWithHint } from '@/lib/utils';
 
-const mockReceipts: Receipt[] = [
+const mockReceipts: Omit<Receipt, 'image'>[] = [
   {
     id: '1',
-    image: getCategoryImageWithHint('Groceries').src,
     vendor: 'Fresh Mart',
     date: '2024-07-20',
     totalAmount: 620,
@@ -44,7 +42,6 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '2',
-    image: getCategoryImageWithHint('Dining').src,
     vendor: 'The Daily Grind Cafe',
     date: '2024-07-19',
     totalAmount: 105,
@@ -59,7 +56,6 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '3',
-    image: getCategoryImageWithHint('Travel').src,
     vendor: 'City Gas',
     date: '2024-07-18',
     totalAmount: 375,
@@ -71,7 +67,6 @@ const mockReceipts: Receipt[] = [
   },
     {
     id: '5',
-    image: getCategoryImageWithHint('Dining').src,
     vendor: 'The Daily Grind Cafe',
     date: '2024-07-21',
     totalAmount: 125,
@@ -86,7 +81,6 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '4',
-    image: getCategoryImageWithHint('Shopping').src,
     vendor: 'Duplicate Store',
     date: '2024-07-15',
     totalAmount: 2500,
@@ -98,7 +92,6 @@ const mockReceipts: Receipt[] = [
   },
   {
     id: '6',
-    image: getCategoryImageWithHint('Utilities').src,
     vendor: 'PowerLight Co.',
     date: '2024-07-15',
     totalAmount: 1500,
@@ -111,7 +104,7 @@ const mockReceipts: Receipt[] = [
 ];
 
 export function Dashboard() {
-  const [receipts, setReceipts] = React.useState<Receipt[]>(mockReceipts);
+  const [receipts, setReceipts] = React.useState<Omit<Receipt, 'image'>[]>(mockReceipts);
   const [isUploadOpen, setUploadOpen] = React.useState(false);
   const [isImportOpen, setImportOpen] = React.useState(false);
   const { toast } = useToast();
@@ -136,11 +129,9 @@ export function Dashboard() {
   };
   
   const handleAddReceipt = (newReceiptData: Omit<Receipt, 'id' | 'image'>) => {
-    const newReceipt: Receipt = {
+    const newReceipt: Omit<Receipt, 'image'> = {
       ...newReceiptData,
       id: new Date().toISOString(),
-      // The image will be set by the getCategoryImageWithHint utility
-      image: getCategoryImageWithHint('Other').src,
     };
     
     setReceipts(prevReceipts => [newReceipt, ...prevReceipts]);

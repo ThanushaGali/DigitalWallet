@@ -10,13 +10,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { QRCodeGenerator } from '@/components/qr-code-generator';
-import Image from 'next/image';
 import { AlertTriangle, Bot, Calendar, QrCode, ShoppingCart } from 'lucide-react';
 import { format } from 'date-fns';
-import { getCategoryImageWithHint } from '@/lib/utils';
 
 interface ReceiptDetailsProps {
-  receipt: Receipt;
+  receipt: Omit<Receipt, 'image'>;
 }
 
 export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
@@ -38,8 +36,6 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
     itemizedList: receipt.itemizedList,
     category: receipt.category,
   };
-
-  const { src, hint } = getCategoryImageWithHint(category);
 
   return (
     <>
@@ -92,15 +88,6 @@ export function ReceiptDetails({ receipt }: ReceiptDetailsProps) {
         </div>
 
         <div className="md:col-span-1 space-y-6">
-          <div className="relative w-full h-48 rounded-lg overflow-hidden border">
-            <Image 
-              src={src} 
-              alt={`Receipt from ${vendor}`} 
-              layout="fill" 
-              objectFit="cover" 
-              data-ai-hint={hint}
-            />
-          </div>
           <div>
               <h3 className="font-semibold text-lg mb-3 flex items-center gap-2"><QrCode className="h-5 w-5 text-primary" /> Digital Pass</h3>
               <div className="flex flex-col items-center p-4 border rounded-lg bg-muted/50">

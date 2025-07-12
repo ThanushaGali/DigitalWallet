@@ -5,7 +5,7 @@ export interface Item {
 
 export interface Receipt {
   id: string;
-  image: string; // Can be a data URI from upload or a URL for mock data
+  image?: string; // Optional, as it's being removed
   date: string;
   vendor: string;
   totalAmount: number;

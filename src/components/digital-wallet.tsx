@@ -1,9 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-
 import {
   Card,
   CardContent,
@@ -17,11 +15,12 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ReceiptDetails } from '@/components/receipt-details';
 import type { Receipt } from '@/types';
 import { AlertCircle, Calendar } from 'lucide-react';
-import { cn, getCategoryImageWithHint } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { QRCodeGenerator } from './qr-code-generator';
 
 interface DigitalWalletProps {
-  receipts: Receipt[];
+  receipts: Omit<Receipt, 'image'>[];
 }
 
 const categoryColors: { [key: string]: string } = {
@@ -38,7 +37,7 @@ const categoryColors: { [key: string]: string } = {
 
 
 export function DigitalWallet({ receipts }: DigitalWalletProps) {
-  const [selectedReceipt, setSelectedReceipt] = React.useState<Receipt | null>(null);
+  const [selectedReceipt, setSelectedReceipt] = React.useState<Omit<Receipt, 'image'> | null>(null);
 
   if (receipts.length === 0) {
     return (
@@ -56,7 +55,13 @@ export function DigitalWallet({ receipts }: DigitalWalletProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <AnimatePresence>
           {receipts.map((receipt, index) => {
-            const { src, hint } = getCategoryImageWithHint(receipt.category);
+              const qrData = {
+                id: receipt.id,
+                vendor: receipt.vendor,
+                date: receipt.date,
+                totalAmount: receipt.totalAmount,
+                category: receipt.category,
+              };
             return (
               <motion.div
                 key={receipt.id}
@@ -83,19 +88,10 @@ export function DigitalWallet({ receipts }: DigitalWalletProps) {
                       {receipt.isFraudulent && <AlertCircle className="h-5 w-5 text-destructive" />}
                     </div>
                   </CardHeader>
-                  <CardContent className="flex-grow p-0">
-                  <div className="relative h-40 w-full">
-                  <Image 
-  src={src}
-  alt={`Receipt from ${receipt.vendor}`}
-  fill
-  style={{ objectFit: 'cover' }}
-  data-ai-hint={hint}
-/>
-
-  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
-</div>
-
+                  <CardContent className="flex-grow p-4 flex items-center justify-center bg-muted/20">
+                    <div className="p-3 bg-white rounded-lg shadow-md">
+                        <QRCodeGenerator data={qrData} className="w-28 h-28"/>
+                    </div>
                   </CardContent>
                   <CardFooter className="flex justify-between items-center bg-muted/30 p-4">
                     <Badge variant="outline" className={cn("font-medium text-sm", categoryColors[receipt.category] || categoryColors['Other'])}>
