@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   output: 'export',
   basePath: '/DigitalWallet',
+  assetPrefix: '/DigitalWallet/',
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -12,6 +13,11 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
     remotePatterns: [
+       {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        pathname: '/**',
+      },
       {
         protocol: 'https',
         hostname: 'thumbs.dreamstime.com',
